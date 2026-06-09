@@ -1,0 +1,271 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>JMJ Intelligence — brainstorm canvas (everything we know)</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,800&family=Spline+Sans:wght@300;400;500;600&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+:root{
+  --bg:#0b0d10;--bg2:#0f1217;--panel:rgba(255,255,255,0.03);--panel2:rgba(255,255,255,0.06);--line:rgba(255,255,255,0.10);
+  --fg:#f4f5f7;--muted:rgba(244,245,247,0.56);--faint:rgba(244,245,247,0.32);
+  --gold:#F5B301;--cisco:#00BCEB;--green:#2ed47a;--amber:#ffab40;--red:#ff6b6b;--purple:#c792ea;
+  --display:'Bricolage Grotesque',Georgia,serif;--body:'Spline Sans',system-ui,sans-serif;--mono:'IBM Plex Mono',monospace;
+}
+html{scroll-behavior:smooth;-webkit-print-color-adjust:exact;print-color-adjust:exact}
+@media print{
+  nav{position:static}
+  body{background:#0b0d10 !important}
+  section{break-inside:avoid-page}
+  .card,.layer,.q,.stat,.side{break-inside:avoid}
+  @page{margin:12mm}
+}
+body{background:radial-gradient(1000px 600px at 86% -6%,rgba(0,188,235,0.08),transparent 60%),radial-gradient(820px 520px at 4% 2%,rgba(245,179,1,0.07),transparent 55%),var(--bg);
+  color:var(--fg);font-family:var(--body);-webkit-font-smoothing:antialiased;line-height:1.5}
+h1,h2,h3,h4{font-family:var(--display);letter-spacing:-0.02em;line-height:1.04;font-weight:800}
+.mono{font-family:var(--mono)}
+.gold{color:var(--gold)}.blue{color:var(--cisco)}.grn{color:var(--green)}.pur{color:var(--purple)}
+a{color:inherit}
+
+header{max-width:1180px;margin:0 auto;padding:40px 26px 18px}
+header .eyebrow{font-family:var(--mono);font-size:11px;letter-spacing:4px;text-transform:uppercase;color:var(--faint)}
+header h1{font-size:clamp(30px,4.6vw,52px);margin:14px 0 10px}
+header p{color:var(--muted);font-size:15px;max-width:760px}
+
+nav{position:sticky;top:0;z-index:40;background:rgba(11,13,16,0.9);backdrop-filter:blur(12px);border-bottom:1px solid var(--line)}
+nav .inner{max-width:1180px;margin:0 auto;padding:11px 26px;display:flex;gap:7px;flex-wrap:wrap}
+nav a{font-family:var(--mono);font-size:10.5px;letter-spacing:.5px;text-transform:uppercase;color:var(--muted);padding:7px 11px;border:1px solid var(--line);border-radius:999px;text-decoration:none;transition:.15s}
+nav a:hover{color:var(--fg);border-color:var(--gold);background:rgba(245,179,1,0.08)}
+
+main{max-width:1180px;margin:0 auto;padding:10px 26px 100px}
+section{padding:34px 0;border-bottom:1px solid var(--line)}
+.sh{display:flex;align-items:baseline;gap:14px;margin-bottom:6px}
+.sh .no{font-family:var(--mono);font-size:13px;color:var(--gold)}
+.sh h2{font-size:clamp(22px,3vw,32px)}
+.si{color:var(--muted);font-size:13.5px;max-width:820px;margin-bottom:22px}
+
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.grid3{display:grid;grid-template-columns:repeat(3,1fr);gap:13px}
+.grid4{display:grid;grid-template-columns:repeat(4,1fr);gap:12px}
+@media(max-width:880px){.grid2,.grid3,.grid4{grid-template-columns:1fr 1fr}}
+@media(max-width:560px){.grid2,.grid3,.grid4{grid-template-columns:1fr}}
+
+.card{border:1px solid var(--line);border-radius:14px;padding:18px 20px;background:var(--panel)}
+.card.gold{border-left:3px solid var(--gold)}.card.blue{border-left:3px solid var(--cisco)}.card.grn{border-left:3px solid var(--green)}.card.pur{border-left:3px solid var(--purple)}.card.red{border-left:3px solid var(--red)}.card.amber{border-left:3px solid var(--amber)}
+.card .ct{font-family:var(--mono);font-size:10px;letter-spacing:1.5px;text-transform:uppercase;color:var(--faint);margin-bottom:9px}
+.card h4{font-size:16px;margin-bottom:8px}
+.card p{font-size:13px;color:var(--muted)}
+.card ul{list-style:none;display:flex;flex-direction:column;gap:7px;margin-top:8px}
+.card li{font-size:12.5px;color:var(--muted);padding-left:15px;position:relative}
+.card li::before{content:"›";position:absolute;left:0;color:var(--faint)}
+.card li b{color:var(--fg);font-weight:600}
+
+.stat{border:1px solid var(--line);border-radius:13px;padding:16px;background:var(--panel);text-align:center}
+.stat .n{font-family:var(--display);font-weight:800;font-size:clamp(22px,2.8vw,32px);color:var(--gold);line-height:1}
+.stat .n.b{color:var(--cisco)}.stat .n.p{color:var(--purple)}.stat .n.g{color:var(--green)}
+.stat .l{font-size:10.5px;color:var(--muted);margin-top:8px;line-height:1.3}
+
+.tbl{width:100%;border-collapse:collapse;font-size:13px;margin-top:6px}
+.tbl th{text-align:left;font-family:var(--mono);font-size:10px;letter-spacing:1px;text-transform:uppercase;color:var(--faint);padding:9px 12px;border-bottom:1px solid var(--line)}
+.tbl td{padding:11px 12px;border-bottom:1px solid var(--line);color:var(--muted);vertical-align:top}
+.tbl td.l{color:var(--fg);font-weight:500}
+.tbl tr:hover td{background:rgba(255,255,255,0.02)}
+
+.layers{display:flex;flex-direction:column;gap:11px}
+.layer{display:flex;gap:16px;align-items:center;border:1px solid var(--line);border-radius:13px;padding:15px 18px;background:var(--panel)}
+.layer .ln{font-family:var(--display);font-weight:800;font-size:28px;width:44px;text-align:center;flex-shrink:0}
+.layer .lb h4{font-size:15px;margin-bottom:3px}.layer .lb p{font-size:12.5px;color:var(--muted)}
+.layer .own{margin-left:auto;font-family:var(--mono);font-size:9.5px;letter-spacing:.5px;text-transform:uppercase;padding:5px 10px;border-radius:999px;border:1px solid var(--line);white-space:nowrap;flex-shrink:0}
+.layer.l1{border-color:rgba(245,179,1,0.4)}.layer.l1 .ln,.layer.l1 .own{color:var(--gold)}.layer.l1 .own{border-color:rgba(245,179,1,0.4)}
+.layer.l2{border-color:rgba(199,146,234,0.4)}.layer.l2 .ln,.layer.l2 .own{color:var(--purple)}.layer.l2 .own{border-color:rgba(199,146,234,0.4)}
+.layer.l3{border-color:rgba(46,212,122,0.4)}.layer.l3 .ln,.layer.l3 .own{color:var(--green)}.layer.l3 .own{border-color:rgba(46,212,122,0.4)}
+
+.seam{display:grid;grid-template-columns:1fr 56px 1fr;gap:0;align-items:stretch;margin-top:6px}
+@media(max-width:680px){.seam{grid-template-columns:1fr}}
+.side{border:1px solid var(--line);border-radius:14px;padding:20px}
+.side.c{border-color:rgba(0,188,235,0.4);background:linear-gradient(180deg,rgba(0,188,235,0.07),transparent)}
+.side.i{border-color:rgba(245,179,1,0.4);background:linear-gradient(180deg,rgba(245,179,1,0.07),transparent)}
+.side .st{font-family:var(--mono);font-size:10px;letter-spacing:1.5px;text-transform:uppercase;margin-bottom:10px}
+.side.c .st{color:var(--cisco)}.side.i .st{color:var(--gold)}
+.side h4{font-size:16px;margin-bottom:10px}.side ul{list-style:none;display:flex;flex-direction:column;gap:7px}
+.side li{font-size:12.5px;color:var(--muted);padding-left:14px;position:relative}.side li::before{content:"›";position:absolute;left:0;color:var(--faint)}
+.knot{display:flex;flex-direction:column;align-items:center;justify-content:center}
+.knot .ln{width:2px;flex:1;background:linear-gradient(180deg,var(--cisco),var(--gold))}
+.knot .k{width:40px;height:40px;border-radius:50%;border:1px solid var(--line);background:var(--bg);display:flex;align-items:center;justify-content:center;font-family:var(--mono);font-size:8px;color:#fff;box-shadow:0 0 22px rgba(0,188,235,0.3),0 0 22px rgba(245,179,1,0.25)}
+@media(max-width:680px){.knot{flex-direction:row;height:34px;margin:6px 0}.knot .ln{height:2px;width:100%}}
+
+.callout{border-left:3px solid var(--red);background:rgba(255,107,107,0.06);padding:15px 18px;border-radius:0 12px 12px 0;margin-top:6px}
+.callout.fix{border-left-color:var(--green);background:rgba(46,212,122,0.06)}
+.callout p{font-size:13px;color:var(--muted)}.callout p b{color:var(--fg)}
+.callout h4{font-size:14px;margin-bottom:6px}
+
+.q{display:flex;gap:12px;align-items:flex-start;border:1px solid var(--line);border-radius:12px;padding:14px 16px;background:var(--panel);margin-bottom:10px}
+.q .qm{font-family:var(--mono);color:var(--amber);font-size:15px;flex-shrink:0}
+.q .qb h4{font-size:14px;margin-bottom:3px}.q .qb p{font-size:12.5px;color:var(--muted)}
+
+.next{border:1px solid rgba(46,212,122,0.4);border-radius:16px;padding:24px;background:linear-gradient(180deg,rgba(46,212,122,0.07),transparent)}
+.next h3{font-size:20px;margin-bottom:8px}.next p{font-size:14px;color:var(--muted);max-width:840px}
+.pill{display:inline-block;font-family:var(--mono);font-size:11px;color:var(--green);border:1px solid rgba(46,212,122,0.4);border-radius:999px;padding:5px 12px;margin:8px 6px 0 0}
+
+footer{max-width:1180px;margin:0 auto;padding:24px 26px 60px;color:var(--faint);font-family:var(--mono);font-size:11px}
+.tag{display:inline-block;font-family:var(--mono);font-size:9px;letter-spacing:1px;text-transform:uppercase;padding:3px 8px;border-radius:5px;margin-left:8px;vertical-align:middle}
+.tag.live{background:rgba(46,212,122,0.15);color:var(--green)}
+.tag.dec{background:rgba(245,179,1,0.15);color:var(--gold)}
+.tag.open{background:rgba(255,171,64,0.15);color:var(--amber)}
+</style>
+</head>
+<body>
+
+<header>
+  <div class="eyebrow">Brainstorm canvas · confidential · everything on one page · 9 Jun 2026</div>
+  <h1>JMJ <span class="gold">Intelligence</span> — the whole picture</h1>
+  <p>One scroll: the partnership, the structure, what we've already built, the Cisco seam, the risks, and the next move. Working brainstorm — not a finished pitch.</p>
+</header>
+
+<nav><div class="inner">
+  <a href="#frame">1 · The frame</a>
+  <a href="#structure">2 · Structure & licensing</a>
+  <a href="#built">3 · What we've built</a>
+  <a href="#modules">4 · Modules & engines</a>
+  <a href="#converge">5 · The convergence</a>
+  <a href="#cisco">6 · Cisco & AI POD</a>
+  <a href="#risk">7 · Risk & fix</a>
+  <a href="#open">8 · Open questions</a>
+  <a href="#next">9 · Next move</a>
+</div></nav>
+
+<main>
+
+  <!-- 1 FRAME -->
+  <section id="frame">
+    <div class="sh"><span class="no">01</span><h2>The frame <span class="tag dec">decided</span></h2></div>
+    <p class="si">SodaLabs + JMJ in partnership. Two different animals, one shared spine.</p>
+    <div class="grid2">
+      <div class="card gold"><div class="ct">SodaLabs · the enterprise</div><h4>Must make money to prosper</h4><p>A commercial enterprise — building, owning and driving the system. Profit isn't in tension with the mission; it's what sustains it.</p></div>
+      <div class="card blue"><div class="ct">Jozi My Jozi · the non-profit</div><h4>The public-interest face</h4><p>Mission-driven, civic credibility, the CoJ/CGIS relationship and the brand. Operating surplus ploughs back into the city.</p></div>
+    </div>
+    <div class="card pur" style="margin-top:13px"><div class="ct">The shared spine</div><h4>One central intelligence system — and we've already built it</h4><p>Both run on a single intelligence system: <b>"the Mind"</b> — the engine, knowledge graph and corpus SodaLabs already operates. One system, two missions on top: JMJ uses it for public good, SodaLabs commercialises it.</p></div>
+  </section>
+
+  <!-- 2 STRUCTURE -->
+  <section id="structure">
+    <div class="sh"><span class="no">02</span><h2>Structure &amp; licensing <span class="tag dec">decided</span></h2></div>
+    <p class="si">It starts as Soda IP. Soda sets up & drives it for a licence fee, keeps building it up, and the core always stays ours. Modules get tagged Soda vs JMJ as we go. Sold as one package.</p>
+    <div class="layers">
+      <div class="layer l1"><div class="ln">1</div><div class="lb"><h4>The core / the engine — Soda IP</h4><p>We built it, we drive it, we improve it. Never sold, never assigned. The core module always remains ours.</p></div><div class="own">SodaLabs · licence fee</div></div>
+      <div class="layer l2"><div class="ln">2</div><div class="lb"><h4>The modules — tagged as we build</h4><p>A growing library on top of the core. Each new module classified <b>SodaWorld module</b> or <b>JMJ module</b> as we go (some co-owned).</p></div><div class="own">Soda / JMJ · per module</div></div>
+      <div class="layer l3"><div class="ln">3</div><div class="lb"><h4>Every new city — a new licence</h4><p>Each city = a new SodaLabs licence + a new co-owned city architecture. Recurring, not one-off. ("City My City.")</p></div><div class="own">New licence each city</div></div>
+    </div>
+    <div class="card" style="margin-top:13px"><p><b style="color:var(--fg)">Sold as a package.</b> Core + modules wrapped as one offering to the city/market. JMJ is the public vehicle that <i>uses</i> the engine; SodaLabs owns and monetises the spine. The non-profit can't own the engine precisely because it can't be the thing that profits.</p></div>
+  </section>
+
+  <!-- 3 BUILT -->
+  <section id="built">
+    <div class="sh"><span class="no">03</span><h2>What we've already built <span class="tag live">verified · Eliyahu census</span></h2></div>
+    <p class="si">Pulled live from the Mind, not memory. This is the asset a frontier model can't have: proprietary, local, dated, ours.</p>
+    <div class="grid4">
+      <div class="stat"><div class="n p">17</div><div class="l">custom AI agents (6 engines + 11 operators)</div></div>
+      <div class="stat"><div class="n">~100</div><div class="l">reusable engines · modules · skills</div></div>
+      <div class="stat"><div class="n b">80+</div><div class="l">APIs in Farcake alone</div></div>
+      <div class="stat"><div class="n g">121,698</div><div class="l">knowledge chunks in the Mind</div></div>
+      <div class="stat"><div class="n">72</div><div class="l">repos federated into one brain</div></div>
+      <div class="stat"><div class="n b">8,425</div><div class="l">entity city graph (10,341 edges)</div></div>
+      <div class="stat"><div class="n">9+</div><div class="l">owned products</div></div>
+      <div class="stat"><div class="n p">16+</div><div class="l">client builds shipped</div></div>
+    </div>
+    <div class="sh" style="margin-top:26px"><h2 style="font-size:18px">The Joburg civic layer</h2></div>
+    <div class="grid4">
+      <div class="stat"><div class="n">4,512</div><div class="l">CBD stands by owner</div></div>
+      <div class="stat"><div class="n">1,572</div><div class="l">owners identified</div></div>
+      <div class="stat"><div class="n">R38.6bn</div><div class="l">municipal value indexed</div></div>
+      <div class="stat"><div class="n b">485</div><div class="l">stands — CoJ, biggest owner</div></div>
+      <div class="stat"><div class="n b">6,824</div><div class="l">roads mapped</div></div>
+      <div class="stat"><div class="n b">103k</div><div class="l">buildings in the model</div></div>
+      <div class="stat"><div class="n">180</div><div class="l">vetted culture venues</div></div>
+      <div class="stat"><div class="n">8</div><div class="l">City Improvement Districts</div></div>
+    </div>
+  </section>
+
+  <!-- 4 MODULES -->
+  <section id="modules">
+    <div class="sh"><span class="no">04</span><h2>Modules &amp; engines</h2></div>
+    <p class="si">One engine, many products. The core engines are the Soda IP; the civic products are what JMJ sees.</p>
+    <div class="grid3">
+      <div class="card gold"><div class="ct">★ Core engines (8) — Soda IP</div><ul><li><b>Knowledge / RAG engine</b> — the Mind</li><li><b>White-label engine</b></li><li><b>Auth seam · Payment seam</b></li><li><b>Agentic CMS · Review-gate</b></li><li><b>Image pipeline · Highlight/media</b></li></ul></div>
+      <div class="card pur"><div class="ct">Module catalog (85+)</div><p>Coach · Legal · Builder · Finance · Manager · Research · Organizer · Messenger · Vault … each on the Universal Agent Interface. BASA is the first tenant licensing them.</p></div>
+      <div class="card blue"><div class="ct">● Live civic products</div><ul><li><b>CoJ Property Atlas</b> — owners, CID, culture, provenance</li><li><b>City Maps</b> — Koki Roads / Drive, Drivable Joburg</li><li><b>3D City Twin</b> — Troyeville→Hillbrow</li><li><b>ABSA suite</b> — acquisition intelligence</li><li><b>Cisco suite</b> — Intelligence Center + 40 Communities</li></ul></div>
+    </div>
+    <div class="grid3" style="margin-top:13px">
+      <div class="card grn"><div class="ct">The 6 engine-agents</div><ul><li><b>Andy</b> — knowledge/RAG (the Mind)</li><li><b>Farcake</b> — civic/research (80+ APIs)</li><li><b>Manfred</b> — media/archive (12,825 assets)</li><li><b>Bird Fountain</b> — GPU image</li><li><b>Leeyo</b> — property / 3D atlas</li><li><b>Eliyahu</b> — synthesis / provenance</li></ul></div>
+      <div class="card"><div class="ct">Real-time + spatial</div><ul><li>Live-streaming virtual channel (PWA)</li><li>Chat + gamification + analytics</li><li><b>SodaWorld Spatial</b> — Quest 3 app</li><li>VRChat / Unity venues · SodaStudio</li></ul></div>
+      <div class="card"><div class="ct">The moat</div><p><b>AI extraction from physical books &amp; archives</b> + 25 yrs JHB heritage + provenance stamps. A competitor would need the same corpus. Local 5090 inference ≈ R0.</p></div>
+    </div>
+  </section>
+
+  <!-- 5 CONVERGENCE -->
+  <section id="converge">
+    <div class="sh"><span class="no">05</span><h2>The convergence <span class="tag live">Eliyahu's read</span></h2></div>
+    <p class="si">Corrie's strawman (slides 8 + 11) describes, almost line-for-line, the machine the fleet already runs. The gap is packaging, not invention.</p>
+    <table class="tbl">
+      <thead><tr><th style="width:46%">Strawman asks for…</th><th>We already run…</th></tr></thead>
+      <tbody>
+        <tr><td class="l">City Knowledge Graph (nodes + layers)</td><td>Andy's entity GraphRAG — 8,425 entities / 10,341 edges</td></tr>
+        <tr><td class="l">AI document ingestion (books → entities/dates/places)</td><td>The Mind — 121,698 chunks, cited ask, nightly refresh</td></tr>
+        <tr><td class="l">"5D: agents continuously compile/validate/update"</td><td>The fleet itself + provenance stamps + review-gates</td></tr>
+        <tr><td class="l">RAG natural-language querying</td><td>Live — answers cited, or honestly "not documented"</td></tr>
+        <tr><td class="l">Map interface</td><td>The Atlas — the cinematic node-graph</td></tr>
+        <tr><td class="l">Cultural layer corpus</td><td>Joburg spine — buildings, history 1886–2019, 1,414 venues</td></tr>
+      </tbody>
+    </table>
+    <div class="card grn" style="margin-top:13px"><p><b style="color:var(--fg)">The partnership in one line:</b> JMJ supplies the mandate, the brand, and the CoJ/CGIS relationship; SodaLabs supplies the working engine, the corpus head-start, and the provenance doctrine that unlocks the city's data. <span class="grn">Cisco/Azure bring rails — we bring the thing that runs on the rails.</span></p></div>
+  </section>
+
+  <!-- 6 CISCO -->
+  <section id="cisco">
+    <div class="sh"><span class="no">06</span><h2>Cisco seam &amp; AI POD</h2></div>
+    <p class="si">Their infrastructure × our intelligence. Our stack is Docker-native and already does local-GPU inference — so running on a Cisco AI POD is a port, not a rebuild.</p>
+    <div class="seam">
+      <div class="side c"><div class="st">Cisco · infrastructure</div><h4>The platform (AI POD)</h4><ul><li>GPU compute — H100/H200/RTX Pro 6000</li><li>OpenShift (Kubernetes)</li><li>VAST/Pure storage + VAST InsightEngine (RAG)</li><li>40 Communities + global reach</li></ul></div>
+      <div class="knot"><div class="ln"></div><div class="k">SEAM</div><div class="ln"></div></div>
+      <div class="side i"><div class="st">SodaLabs · intelligence</div><h4>The living layer (the Mind)</h4><ul><li>Engine + knowledge graph + corpus</li><li>Atlas, twin, culture &amp; CID layers</li><li>Provenance doctrine — the legal unlock</li><li>Measurable · targetable · replicable</li></ul></div>
+    </div>
+    <div class="grid2" style="margin-top:13px">
+      <div class="card blue"><div class="ct">What we need to run on Cisco</div><ul><li><b>Model serving:</b> open models via NVIDIA NIM on-POD (+ Claude API hybrid) — the only new piece</li><li><b>Containerise for OpenShift</b> — minor, we're Docker-native</li><li><b>Data tier on POD storage</b> — Postgres+pgvector, graph, archive</li><li><b>GPU sizing</b> — one POD covers inference+embeddings+image+OCR</li></ul></div>
+      <div class="card grn"><div class="ct">Why it's the move</div><ul><li>City data lives <b>on-prem in Joburg</b> = sovereign, not foreign cloud</li><li>We become Cisco's <b>flagship civic showcase</b></li><li>The <b>POD is Cisco capex</b> (in-kind) — not ours</li><li>Turns "asking for charity" into "giving their product a marquee"</li></ul></div>
+    </div>
+  </section>
+
+  <!-- 7 RISK -->
+  <section id="risk">
+    <div class="sh"><span class="no">07</span><h2>The risk &amp; the fix <span class="tag open">watch</span></h2></div>
+    <div class="callout"><h4 style="color:var(--red)">⚠ The trap</h4><p>Corrie's strawman: slide 2 = non-profit, profits back to JMJ; slide 9 = SodaLabs as a vendor <b>cost-line</b> next to Azure/Cisco. The deck specs an engine we've already built. <b>"Greater-good wrappers become reasons to never pay."</b> Pour the engine into a non-profit with no structural return → we fund it all and earn nothing.</p></div>
+    <div class="callout fix"><h4 style="color:var(--green)">✓ The fix</h4><p>Engine <b>licensed, never assigned</b>. SodaLabs = founding technology owner-partner with the licence fee + per-city model living <b>outside / above the non-profit</b>. Get it in writing while it's still a strawman — the cheapest moment to set terms. (Team slide already says "constituted as CV and MB" — if MB = Mic, we negotiate from inside-out.)</p></div>
+  </section>
+
+  <!-- 8 OPEN -->
+  <section id="open">
+    <div class="sh"><span class="no">08</span><h2>Open questions — decide these <span class="tag open">open</span></h2></div>
+    <div class="q"><span class="qm">?</span><div class="qb"><h4>Who is the ONE named anchor buyer?</h4><p>The strawman's 8 customer segments (heritage → gamers) = no buyer. Collapse to one nameable anchor: <b>CoJ via CGIS</b>, <b>AngloGold CSI</b>, or a <b>heritage / smart-city grant</b>.</p></div></div>
+    <div class="q"><span class="qm">?</span><div class="qb"><h4>Governance — DAO-shaped or conventional custodial?</h4><p>The "by the community, self-governing, tokenisation" language is DAO-shaped. Decide it, don't imply it. Purpose-locked governance lets NPO custodianship + commercial rails coexist.</p></div></div>
+    <div class="q"><span class="qm">?</span><div class="qb"><h4>Which modules are Soda vs JMJ?</h4><p>Core stays Soda. Tag each new module as we build. Agree the principle now, the line per-module later.</p></div></div>
+    <div class="q"><span class="qm">?</span><div class="qb"><h4>Revenue split + per-city licence terms</h4><p>Licence fee level, revenue share %, and what flips when CoJ pays. Modelled in the live cost tool.</p></div></div>
+  </section>
+
+  <!-- 9 NEXT -->
+  <section id="next">
+    <div class="sh"><span class="no">09</span><h2>The next move</h2></div>
+    <div class="next">
+      <h3>Answer slide 17 with a demo, not a deck</h3>
+      <p>A <b>2–3 week SodaLabs PoC: the Troyeville / inner-city block Atlas</b> — GeoLIS public layers + our buildings/heritage/venues corpus + one copyright-cleared historical book → the City Atlas demo with cited ask + an auto-generated "Edition" (report + dashboard + API in one). Before/after case study built in. Anchored to ONE named funder conversation.</p>
+      <span class="pill">Demo beats deck</span><span class="pill">Weeks, not quarters</span><span class="pill">One named anchor</span><span class="pill">Licence terms in writing first</span>
+    </div>
+  </section>
+
+</main>
+
+<footer>JMJ Intelligence brainstorm canvas · confidential · SodaLabs × Jozi My Jozi · figures from Eliyahu's Mind census (verify before external use) · 9 Jun 2026</footer>
+</body>
+</html>
